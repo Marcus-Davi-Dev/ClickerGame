@@ -1,8 +1,45 @@
-// !! A poção de reduão de delay pela metade permanente não funciona.
-// Corrigido uma sintaxe errada que fazia com que os buffs de delay aumentassem o delay, ao invés de diminuir.
-// Corrigido erro em que ao clicar na checkbox de desativar/reativar o dinheiro 2X permanente duas vezes a quantia de dinheiro ganha era dividida pelo multiplicador de dinheiro bônus atual.
-// Agora o auto clicker subtrai uma quantia do dinheiro total, ao invés de ser de graça, como antes.
-// Todas as funcionalidades de clicks manuais forma movidos para um Object, parecido como o do ato click.
+// Closure
+(function () {
+    print = console.log;
+    console.log = function (...data) {
+        print(...data);
+        const logs = document.querySelector("#logs > .content");
+        const log = document.createElement("p");
+        log.innerHTML = data;
+        log.style.margin = "2px 0 2px 0";
+        log.style.padding = "0";
+        logs.appendChild(log);
+    }
+})();
+// Closure
+(function () {
+    const round = Math.round;
+    // Fragmento de código removido do MDN que foi adaptado.
+    /**
+     * Ajuste decimal de um número.
+     *
+     * @param  {Number}  value  O número a arredondar.
+     * @param  {Integer}  exp    O expoente (o logaritmo decimal da base pretendida).
+     * @returns  {Number}      O valor depois de ajustado.
+     */
+    function decimalAdjust(value, exp) {
+        if (typeof exp === "undefined" || +exp === 0) {
+            return round(value);
+        }
+        value = +value;
+        exp = +exp;
+        if (isNaN(value) || !(typeof exp === "number" && exp % 1 === 0)) {
+            return NaN;
+        }
+        value = value.toString().split("e");
+        value = round(+(value[0] + "e" + (value[1] ? +value[1] - exp : -exp)));
+        value = value.toString().split("e");
+        return +(value[0] + "e" + (value[1] ? +value[1] + exp : exp));
+    }
+    Math.round = function (value, exp) {
+        return decimalAdjust(value, exp);
+    };
+})();
 
 // 
 // elementos do container principal
@@ -15,11 +52,11 @@ const buttons2 = document.querySelector(".buttons2");
 // elemento que exibe a quantia atual de dinheiro
 const moneyDisplayer = document.querySelector("#money-value");
 // sub-elementos do container principal
-const shopButton = document.querySelector(".shop-button");
-const upgradesButton = document.querySelector(".upgrades-button");
-const configButton = document.querySelector(".config-button");
-const statsButton = document.querySelector(".stats-button");
-const buttons = [shopButton, upgradesButton, configButton, statsButton];
+const shopMenuButton = document.querySelector(".shop-button");
+const upgradesMenuButton = document.querySelector(".upgrades-button");
+const configMenuButton = document.querySelector(".config-button");
+const statsMenuButton = document.querySelector(".stats-button");
+const buttons = [shopMenuButton, upgradesMenuButton, configMenuButton, statsMenuButton];
 
 //
 // menus
@@ -43,6 +80,7 @@ const manual = {
     prices: { click: [10, 25, 100, 200, 350, 600, "max"], multiplier: [100, 200, 400, 700, 1000, 1250, 1600, "max"], clickDelay: [150, 300, 500, 600, 700, 800, 900, 1000, 1250, 1400, 1500, "max"] },
     levels: { click: 1, multiplier: 1, clickDelay: 1 }
 }
+const upgradeButtons = querySelectorAll("[data-botao-upgrade]");
 // variáveis de controle para fazer os upgrades
 let money = 0;
 // variáveis de controle para fazer os upgrades do auto clicker
@@ -65,6 +103,7 @@ const buttonsBloqueados = document.querySelectorAll(".disabled");
 // variáveis do menu "stats"
 let moneyGanhoTotal = 0;
 let moneyGastoTotal = 0;
+let clickAmount = 0;
 // checkboxes do menus "stats"
 const checkboxPocaoOuro = document.querySelector("#toggle-pocao-ouro");
 const checkboxPocaoDelay = document.querySelector("#toggle-pocao-delay");
@@ -102,10 +141,17 @@ const somMoneyIncrease = new Audio("sons/dinheiro.mp3");
 function appendBuyBuffFunctionality(element, buffName, buffType, multiplierVariable, multiplier, counter) {
     element.addEventListener('click', function () {
         if (money >= parseInt(element.textContent)) {
-            money -= parseInt(this.textContent);
-            moneyGastoTotal += parseInt(this.textContent);
+            money = Math.round(money - parseInt(this.textContent), -1);
+            moneyGastoTotal = Math.round(moneyGastoTotal + parseInt(this.textContent), -1);
             updateMoneyDisplayer();
             updateStats();
+            for (let i = 0; i < upgradeButtons.length; i++) {
+                if (upgradeButtons[i].textContent === "max") {
+                    verificarMoney("max", upgradeButtons[i]);
+                } else if (!(upgradeButtons[i].classList.contains("disabled"))) {
+                    verificarMoney(parseInt(upgradeButtons[i].textContent), upgradeButtons[i]);
+                }
+            }
             const time = parseInt(this.parentElement.children[0].children[1].textContent.substring(0, 2)) * 60;
             if (eval(counter) === 0) {
                 createBuff(buffName, multiplierVariable, multiplier, counter, time);
@@ -189,7 +235,8 @@ function createBuff(buffType, multiplierVariable, multiplier, counter, time) {
         if (buffs.children.length === 0) {
             buffsContainer.style.display = "none";
         }
-    }, 1000)
+    }, 1000);
+    console.log(`Foi comprado um buff de ${buffTtype} com um multiplicador de ${multiplier} que durará ${time} segundos.`);
 }
 function updateBuff(type, time) {
     switch (type) {
@@ -232,10 +279,10 @@ function updateBuff(type, time) {
     }
 }
 for (let i = 0; i < redimensionadores.length; i++) {
-    function resize(button, section) {
+    function resize(button, menu) {
         button.addEventListener('click', function () {
-            section.classList.toggle("max-size");
-            section.classList.toggle("normal-size");
+            menu.classList.toggle("max-size");
+            menu.classList.toggle("normal-size");
             if (button.src === "file:///media/fuse/drivefs-cd57c77a49defb3e47abc715efa5d22f/root/Projeto/clicker/imagens/maximizar.png") {
                 button.src = "imagens/minimizar.png";
             } else {
@@ -256,59 +303,70 @@ for (let i = 0; i < redimensionadores.length; i++) {
         case "stats-resize":
             resize(redimensionadores[i], statsMenu);
             break;
+        case "logs-resize":
+            resize(redimensionadores[i], document.querySelector("#logs"));
     }
 }
 window.addEventListener('resize', function () {
     text.style.left = `${image.getBoundingClientRect().left}px`;
     text2.style.left = `${image.getBoundingClientRect().left + 50}px`;
-    buttons1.style.height = `${shopButton.getBoundingClientRect().height + upgradesButton.getBoundingClientRect().height + 10}px`;
-    buttons2.style.height = `${configButton.getBoundingClientRect().height + statsButton.getBoundingClientRect().height + 10}px`;
+    buttons1.style.height = `${shopMenuButton.getBoundingClientRect().height + upgradesMenuButton.getBoundingClientRect().height + 10}px`;
+    buttons2.style.height = `${configMenuButton.getBoundingClientRect().height + statsMenuButton.getBoundingClientRect().height + 10}px`;
     updateMoneyDisplayer();
 })
 window.addEventListener('click', function () {
-    document.querySelector("#clickes").textContent = parseInt(this.document.querySelector("#clickes").textContent) + 1;
+    clickAmount += 1;
+    document.querySelector("#clickes").textContent = clickAmount;
 })
+window.onload = function () {
+    if (localStorage.length > 0) {
+        loadSave();
+        console.log("O save foi carregado!");
+    }
+}
 
 image.addEventListener('click', function () {
     if (text.style.opacity === "" || text.style.opacity === "0") {
-        text.textContent = `+${manual.clickPower * (bonusMultiplier / 100)}`;
+        text.textContent = `+${Math.round(manual.clickPower * (bonusMultiplier / 100), -1)}`;
         text.style.opacity = "1";
-        money += manual.clickPower * (bonusMultiplier / 100);
-        moneyDisplayer.textContent = money;
+        money = Math.round(money + (manual.clickPower * (bonusMultiplier / 100)), -1);
         updateMoneyDisplayer();
-        moneyGanhoTotal += manual.clickPower * (bonusMultiplier / 100);
+        moneyGanhoTotal = Math.round(moneyGanhoTotal + (manual.clickPower * (bonusMultiplier / 100)), -1);
         updateStats();
         somMoneyIncrease.play()
-        document.querySelector("#money-total").textContent = moneyGanhoTotal;
         setTimeout(function () {
             text.style.opacity = "0";
         }, (manual.clickDelay * (delayMultiplier / 100)));
-        verificarMoney(manual.prices.click[manual.levels.click - 1], manual.buttons.click);
-        verificarMoney(manual.prices.multiplier[manual.levels.multiplier - 1],manual.buttons. multiplier);
-        verificarMoney(manual.prices.clickDelay[manual.levels.clickDelay - 1], manual.buttons.clickDelay);
+        for (let i = 0; i < upgradeButtons.length; i++) {
+            if (upgradeButtons[i].textContent === "max") {
+                verificarMoney("max", upgradeButtons[i]);
+            } else if (!(upgradeButtons[i].classList.contains("disabled"))) {
+                verificarMoney(parseInt(upgradeButtons[i].textContent), upgradeButtons[i]);
+            }
+        }
     }
 })
 autoClick.button.addEventListener('click', function () {
     if (autoClick.comprado) {
         alert("Você já comprou o Auto Clicker");
     } else {
-        if (money > 600) {
-            money -= 600;
-            moneyGastoTotal += 600;
+        if (money >= 600) {
+            console.log("O auto clicker foi comprado.");
+            money = Math.round((money - 600), -1);
+            moneyGastoTotal += Math.round((moneyGastoTotal + 600), -1);
             updateMoneyDisplayer();
             updateStats();
             autoClick.comprado = true;
-            autoClick.button.textContent = "comprado";
+            this.textContent = "comprado";
+            this.classList.add("max");
             IntervalAtualId = setInterval(function () {
-                text2.textContent = `+${autoClick.clickPower * (bonusMultiplier / 100)}`;
+                text2.textContent = `+${Math.round((autoClick.clickPower * (bonusMultiplier / 100)), -1)}`;
                 text2.style.opacity = "1";
-                money += autoClick.clickPower * (bonusMultiplier / 100);
-                moneyDisplayer.textContent = money;
+                money = Math.round(money + (autoClick.clickPower * (bonusMultiplier / 100)), -1);
                 updateMoneyDisplayer();
-                moneyGanhoTotal += autoClick.clickPower * (bonusMultiplier / 100);
+                moneyGanhoTotal = Math.round(moneyGanhoTotal + (autoClick.clickPower * (bonusMultiplier / 100)), -1);
                 updateStats();
                 somMoneyIncrease.play();
-                document.querySelector("#money-total").textContent = moneyGanhoTotal;
                 setTimeout(function () {
                     text2.style.opacity = "0";
                 }, (autoClick.clickDelay * (delayMultiplier / 100)) - 150)
@@ -316,6 +374,14 @@ autoClick.button.addEventListener('click', function () {
             for (let i = 0; i < buttonsBloqueados.length; i++) {
                 buttonsBloqueados[i].classList.remove("disabled");
                 verificarMoney(parseInt(buttonsBloqueados[i].textContent), buttonsBloqueados[i]);
+                /* Devido a ordem dos botões no documento HTML os 3 primeiros botões são os
+                   de upgrade do click manual, então, vou aproveitar e já fazer uma checagem
+                   de preço aqui mesmo. Melhor do que fazer outro loop.*/
+                if (upgradeButtons[i].textContent === "max") {
+                    verificarMoney("max", upgradeButtons[i]);
+                } else {
+                    verificarMoney(parseInt(upgradeButtons[i].textContent), upgradeButtons[i]);
+                }
             }
             checkboxAutoClick.checked = true;
             checkboxAutoClick.removeAttribute('disabled');
@@ -337,31 +403,39 @@ function verificarMoney(price, button) {
 function upgrade(button, prices, level, compra) {
     button.addEventListener('click', function () {
         if (prices[level - 1] !== "max") {
-            money -= prices[level - 1];
-            moneyDisplayer.textContent = money;
+            money = Math.round((money - prices[level - 1]), -1);
             updateMoneyDisplayer();
-            moneyGastoTotal += prices[level - 1];
-            level++;
+            moneyGastoTotal = Math.round((moneyGastoTotal + prices[level - 1]), -1);
             switch (compra) {
                 case 'clickPower':
+                    console.log(`O valor do clique (manual) aumentou: ${manual.click} -> ${manual.click + 1}.`);
                     manual.click++;
                     manual.levels.click++;
+                    level = manual.levels.click;
                     break;
                 case 'clickMult':
-                    manual.multiplier += 10;
+                    console.log(`O multiplicador do clique (manual) aumentou: ${manual.multiplier / 100}X -> ${(manual.multiplier + 20) / 100}X.`);
+                    manual.multiplier += 20;
                     manual.levels.multiplier++;
+                    level = manual.levels.multiplier;
                     break;
                 case 'clickDelay':
+                    console.log(`O delay do clique (manual) diminuiu: ${manual.clickDelay / 1000}s -> ${(manual.clickDelay - 50) / 1000}s.`);
                     manual.clickDelay -= 50;
                     manual.levels.clickDelay++;
+                    level = manual.levels.clickDelay;
                     break;
             }
             button.textContent = `${prices[level - 1]}`;
             updateClickValue();
             updateStats();
-            verificarMoney(manual.prices.click[manual.levels.click - 1], manual.buttons.click);
-            verificarMoney(manual.prices.multiplier[manual.levels.multiplier - 1], manual.buttons.multiplier);
-            verificarMoney(manual.prices.clickDelay[manual.levels.clickDelay - 1], manual.buttons.clickDelay);
+            for (let i = 0; i < upgradeButtons.length; i++) {
+                if (upgradeButtons[i].textContent === "max") {
+                    verificarMoney("max", upgradeButtons[i]);
+                } else if (!(upgradeButtons.classList.contains("disabled"))) {
+                    verificarMoney(parseInt(upgradeButtons[i].textContent), upgradeButtons[i]);
+                }
+            }
         } else {
             alert("Você chegou ao nível máximo!");
         }
@@ -370,33 +444,39 @@ function upgrade(button, prices, level, compra) {
 function upgradeAutoClick(button, prices, level, compra) {
     button.addEventListener('click', function () {
         if (prices[level - 1] !== "max") {
-            if (money >= prices[level - 1]) {
-                money -= prices[level - 1];
-                moneyDisplayer.textContent = money;
-                updateMoneyDisplayer();
-                moneyGastoTotal += prices[level - 1];
-                level++;
-                switch (compra) {
-                    case 'clickPower':
-                        autoClick.click++;
-                        autoClick.levels.click++;
-                        break;
-                    case 'multiplier':
-                        autoClick.multiplier += 10;
-                        autoClick.levels.multiplier++;
-                        break;
-                    case 'clickDelay':
-                        autoClick.clickDelay -= 50;
-                        autoClick.levels.clickDelay++;
-                        updateAutoClick(IntervalAtualId)
-                        break;
+            money = Math.round((money - prices[level - 1]), -1);
+            updateMoneyDisplayer();
+            moneyGastoTotal = Math.round((moneyGastoTotal + prices[level - 1]), -1);
+            switch (compra) {
+                case 'clickPower':
+                    console.log(`O valor do clique (auto click) aumentou: ${autoClick.click} -> ${autoClick.click + 1}`);
+                    autoClick.click++;
+                    autoClick.levels.click++;
+                    level = autoClick.levels.click;
+                    break;
+                case 'multiplier':
+                    console.log(`O multiplicador do clique (auto click) aumentou: ${autoClick.multiplier / 100}X -> ${(autoClick.multiplier + 20) / 100}X.`);
+                    autoClick.multiplier += 10;
+                    autoClick.levels.multiplier++;
+                    level = autoClick.levels.multiplier;
+                    break;
+                case 'clickDelay':
+                    console.log(`O delay do clique (auto click) diminuiu: ${autoClick.clickDelay / 1000}s -> ${(autoClick.clickDelay - 50) / 1000}s.`);
+                    autoClick.clickDelay -= 50;
+                    autoClick.levels.clickDelay++;
+                    level = autoClick.levels.clickDelay;
+                    updateAutoClick(IntervalAtualId)
+                    break;
+            }
+            button.textContent = `${prices[level - 1]}`;
+            updateAutoClickValue();
+            updateStats();
+            for (let i = 0; i < upgradeButtons.length; i++) {
+                if (upgradeButtons[i].textContent === "max") {
+                    verificarMoney("max", upgradeButtons[i]);
+                } else if (!(upgradeButtons[i].classList.contains("disabled"))) {
+                    verificarMoney(parseInt(upgradeButtons[i].textContent), upgradeButtons[i]);
                 }
-                button.textContent = `${prices[level - 1]}`;
-                updateAutoClickValue();
-                updateStats();
-                verificarMoney(autoClick.prices.click[autoClick.levels.click - 1], autoClick.buttons.click);
-                verificarMoney(autoClick.prices.multiplier[autoClick.levels.multiplier - 1], autoClick.buttons.multiplier);
-                verificarMoney(autoClick.prices.clickDelay[autoClick.levels.clickDelay - 1], autoClick.buttons.clickDelay);
             }
         } else {
             alert("Você chegou ao nível máximo!");
@@ -416,52 +496,98 @@ function updateAutoClick(id) {
     IntervalAtualId = setInterval(function () {
         text2.textContent = `+${autoClick.clickPower * (bonusMultiplier / 100)}`;
         text2.style.opacity = "1";
-        money += autoClick.clickPower * (bonusMultiplier / 100);
-        moneyDisplayer.textContent = money;
+        money = Math.round(money + (autoClick.clickPower * (bonusMultiplier / 100)), -1);
         updateMoneyDisplayer();
-        moneyGanhoTotal += autoClick.clickPower * (bonusMultiplier / 100);
+        moneyGanhoTotal = Math.round(moneyGanhoTotal + (autoClick.clickPower * (bonusMultiplier / 100)), -1);
         updateStats();
         somMoneyIncrease.play();
         setTimeout(function () {
             text2.style.opacity = "0";
         }, (autoClick.clickDelay * (delayMultiplier / 100)) - 150)
+        for (let i = 0; i < upgradeButtons.length; i++) {
+            if (upgradeButtons[i].textContent === "max") {
+                verificarMoney("max", upgradeButtons[i]);
+            } else if (!(upgradeButtons[i].classList.contains("disabled"))) {
+                verificarMoney(parseInt(upgradeButtons[i].textContent), -1);
+            }
+        }
     }, (autoClick.clickDelay * (delayMultiplier / 100)));
 }
 checkboxAutoClick.addEventListener('click', function () {
     if (checkboxAutoClick.checked) {
+        console.log("Auto clicker foi ligado.");
         IntervalAtualId = setInterval(function () {
             text2.textContent = `+${autoClick.clickPower * (bonusMultiplier / 100)}`;
             text2.style.opacity = "1";
-            money += autoClick.clickPower * (bonusMultiplier / 100);
-            moneyGanhoTotal += autoClick.clickPower * (bonusMultiplier / 100);
-            moneyDisplayer.textContent = money;
+            money = Math.round(money + (autoClick.clickPower * (bonusMultiplier / 100)), -1);
+            moneyGanhoTotal = Math.round(moneyGanhoTotal + (autoClick.clickPower * (bonusMultiplier / 100)), -1);
             updateMoneyDisplayer()
             updateStats();
             somMoneyIncrease.play();
             setTimeout(function () {
                 text2.style.opacity = "0";
-            }, (autoClick.clickDelay * delayMultiplier) - 150)
-        }, (autoClick.clickDelay * delayMultiplier))
+            }, (autoClick.clickDelay * delayMultiplier) - 150);
+            for (let i = 0; i < upgradeButtons.length; i++) {
+                if (upgradeButtons[i].textContent === "max") {
+                    verificarMoney("max", upgradeButtons[i]);
+                } else if (!(upgradeButtons[i].classList.contains("disabled"))) {
+                    verificarMoney(parseInt(upgradeButtons[i].textContent), upgradeButtons[i]);
+                }
+            }
+        }, (autoClick.clickDelay * (delayMultiplier / 100)))
     } else {
+        console.log("Auto clicker foi desligado.");
         clearInterval(IntervalAtualId);
     }
 })
 pocaoOuroPerm.addEventListener('click', function () {
-    debugger;
-    if (money > parseInt(this.textContent) && !(pocaoOuroPerm.classList.contains("comprado"))) {
+    if (money > parseInt(this.textContent) && !(pocaoOuroPerm.getAttribute("data-foi-comprado"))) {
+        console.log("Poção de ouro permanente foi comprada.");
         bonusMultiplier *= 2;
-        money -= parseInt(this.textContent);
-        moneyGastoTotal += parseInt(this.textContent);
+        money = Math.round((money - parseInt(this.textContent)), -1);
+        moneyGastoTotal = Math.round((moneyGastoTotal + parseInt(this.textContent)), -1);
         updateMoneyDisplayer();
         updateStats();
-        this.classList.add("comprado");
-        this.textContent = "Comprado";
+        this.setAttribute("data-foi-comprado", 'true');
+        this.textContent = "comprado";
         checkboxPocaoOuro.removeAttribute('disabled');
         checkboxPocaoOuro.checked = true;
+        for (let i = 0; i < upgradeButtons.length; i++) {
+            if (upgradeButtons[i].textContent === "max") {
+                verificarMoney("max", upgradeButtons[i]);
+            } else if (!(upgradeButtons[i].classList.contains("disabled"))) {
+                verificarMoney(parseInt(upgradeButtons[i].textContent), upgradeButtons[i]);
+            }
+        }
     } else if (money < parseInt(pocaoOuroPerm.textContent)) {
         alert(`Dinheiro insuficiente. Necessário: ${pocaoOuroPerm.textContent}. Atual: ${money}.`)
     } else {
         alert("Esta poção permanente já foi comprada.")
+    }
+})
+pocaoDelayPerm.addEventListener('click', function () {
+    if (money > parseInt(this.textContent) && !(pocaoDelayPerm.getAttribute("data-foi-comprado") === true)) {
+        console.log("poção de delay permanente foi comprada.");
+        delayMultiplier /= 2;
+        money = Math.round((money - parseInt(this.textContent)), -1);
+        moneyGastoTotal = Math.round((moneyGastoTotal + parseInt(this.textContent)), -1);
+        updateMoneyDisplayer();
+        updateStats();
+        this.setAttribute("data-foi-comprado", "true");
+        this.textContent = "Comprado";
+        checkboxPocaoDelay.removeAttribute("disabled");
+        checkboxPocaoDelay.checked = true;
+        for (let i = 0; i < upgradeButtons.length; i++) {
+            if (upgradeButtons[i].textContent === "max") {
+                verificarMoney("max", upgradeButtons[i]);
+            } else if (!(upgradeButtons[i].classList.contains("disabled"))) {
+                verificarMoney(parseInt(upgradeButtons[i].textContent), upgradeButtons[i]);
+            }
+        }
+    } else if (money < parseInt(this.textContent)) {
+        alert(`Dinheiro insuficiente. Necessário: ${this.textContent}. Atual: ${money}`);
+    } else {
+        alert("Esta poção permanente já foi comprada.");
     }
 })
 checkboxPocaoOuro.addEventListener('click', function () {
@@ -469,6 +595,13 @@ checkboxPocaoOuro.addEventListener('click', function () {
         bonusMultiplier *= 2;
     } else {
         bonusMultiplier /= 2;
+    }
+})
+checkboxPocaoDelay.addEventListener('click', function () {
+    if (this.checked === true) {
+        delayMultiplier *= 2;
+    } else {
+        delayMultiplier /= 2;
     }
 })
 function updateStats() {
@@ -490,9 +623,183 @@ function updateMoneyDisplayer() {
     moneyDisplayer.style.left = fixedPosition;
     moneyDisplayer.style.top = `${image.getBoundingClientRect().y + 85}px`;
 }
+document.querySelector("#save-game").addEventListener('click', function(){
+    try {
+        save();
+        console.log("O jogo foi salvo.");
+    } catch (e) {
+        console.log("Erro durante o salvamento:", e);
+    }
+})
+function save() {
+    // menu upgrades
+    localStorage.setItem("money", money)
+    localStorage.setItem("click", manual.click);
+    localStorage.setItem("clickPower", manual.clickPower);
+    localStorage.setItem("multiplier", manual.multiplier);
+    localStorage.setItem("clickDelay", manual.clickDelay);
+    localStorage.setItem("clickLevel", manual.levels.click);
+    localStorage.setItem("multiplierLevel", manual.levels.multiplier);
+    localStorage.setItem("clickDelayLevel", manual.levels.clickDelay);
+    localStorage.setItem("autoclick.click", autoClick.click);
+    localStorage.setItem("autoclick.multiplier", autoClick.multiplier);
+    localStorage.setItem("autoclick.clickDelay", autoClick.clickDelay);
+    localStorage.setItem("autoclick.clickLevel", autoClick.levels.click);
+    localStorage.setItem("autoclick.multiplierLevel", autoClick.levels.multiplier);
+    localStorage.setItem("autoclick.clickDelayLevel", autoClick.levels.clickDelay);
+    localStorage.setItem("autoclick.comprado", autoClick.comprado);
+
+    // menu loja
+    localStorage.setItem("buffDelayTempo1", buffDelayTempo1);
+    localStorage.setItem("buffDelayTempo2", buffDelayTempo2);
+    localStorage.setItem("buffMoneyTempo1", buffMoneyTempo1);
+    localStorage.setItem("buffMoneyTempo2", buffMoneyTempo2);
+    localStorage.setItem("pocaoOuroPermComprada", pocaoOuroPerm.getAttribute("data-foi-comprado") !== null);
+    localStorage.setItem("pocaoDelayPermComprada", pocaoDelayPerm.getAttribute("data-foi-comprado") !== null);
+
+    // menu status
+    localStorage.setItem("delayMultiplier", delayMultiplier);
+    localStorage.setItem("bonusMultiplier", bonusMultiplier);
+    localStorage.setItem("moneyGanhoTotal", moneyGanhoTotal);
+    localStorage.setItem("moneyGastoTotal", moneyGastoTotal);
+    localStorage.setItem("clickAmount", clickAmount);
+
+    // menu config
+    localStorage.setItem("autoclickCheckbox.checked", checkboxAutoClick.checked);
+    localStorage.setItem("pocaoOuroCheckbox.checked", checkboxPocaoOuro.checked);
+    localStorage.setItem("pocaoDelayCheckbox.checked", checkboxPocaoDelay.checked);
+}
+function loadSave() {
+    // menu upgrades
+    money = Math.round(localStorage.getItem("money"), -1);
+    updateMoneyDisplayer();
+
+    manual.click = parseInt(localStorage.getItem("click"));
+    manual.clickPower = parseInt(localStorage.getItem("clickPower"));
+    manual.multiplier = parseInt(localStorage.getItem("multiplier"));
+    manual.clickDelay = parseInt(localStorage.getItem("clickDelay"));
+
+    manual.levels.click = parseInt(localStorage.getItem("clickLevel"));
+    manual.buttons.click.textContent = manual.prices.click[manual.levels.click - 1];
+
+    manual.levels.multiplier = parseInt(localStorage.getItem("multiplierLevel"));
+    manual.buttons.multiplier.textContent = manual.prices.multiplier[manual.levels.multiplier - 1];
+
+    manual.levels.clickDelay = parseInt(localStorage.getItem("clickDelayLevel"));
+    manual.buttons.clickDelay.textContent = manual.prices.clickDelay[manual.levels.clickDelay - 1];
+
+    autoClick.click = parseInt(localStorage.getItem("autoclick.click"));
+    autoClick.multiplier = parseInt(localStorage.getItem("autoclick.multiplier"));
+    autoClick.clickPower = autoClick.click * (autoClick.multiplier / 100);
+    autoClick.clickDelay = parseInt(localStorage.getItem("autoclick.clickDelay"));
+
+    autoClick.levels.click = parseInt(localStorage.getItem("autoclick.clickLevel"));
+    autoClick.buttons.click.textContent = autoClick.prices.click[autoClick.levels.click - 1];
+
+    autoClick.levels.multiplier = parseInt(localStorage.getItem("autoclick.multiplierLevel"));
+    autoClick.buttons.multiplier.textContent = autoClick.prices.multiplier[autoClick.levels.multiplier - 1];
+
+    autoClick.levels.clickDelay = parseInt(localStorage.getItem("autoclick.clickDelayLevel"));
+    autoClick.buttons.clickDelay.textContent = autoClick.prices.clickDelay[autoClick.levels.clickDelay - 1];
+
+    autoClick.comprado = localStorage.getItem("autoclick.comprado") === 'true';
+
+    for (let i = 0; i < upgradeButtons.length; i++) {
+        if (upgradeButtons[i].textContent === "max") {
+            verificarMoney("max", upgradeButtons[i]);
+        } else if (!(upgradeButtons[i].classList.contains("disabled"))) {
+            verificarMoney(parseInt(upgradeButtons[i].textContent), upgradeButtons[i]);
+        }
+    }
+    // menu loja
+    buffDelayTempo1 = parseInt(localStorage.getItem("buffDelayTempo1"));
+    buffDelayTempo2 = parseInt(localStorage.getItem("buffDelayTempo2"));
+    buffMoneyTempo1 = parseInt(localStorage.getItem("buffMoneyTempo1"));
+    buffMoneyTempo2 = parseInt(localStorage.getItem("buffMoneyTempo2"));
+    if (buffDelayTempo1 > 0) {
+        createBuff("delay", "delayMultiplier", 0.5, "buffDelayTempo1", buffDelayTempo1);
+    }
+    if (buffDelayTempo2 > 0) {
+        createBuff("delay", "delayMultiplier", 0.25, "buffDelayTempo2", buffDelayTempo2);
+    }
+    if (buffMoneyTempo1 > 0) {
+        createBuff("dinheiro", "bonusMultiplier", 2, "buffMoneyTempo1", buffMoneyTempo1);
+    }
+    if (buffMoneyTempo2 > 0) {
+        createBuff("dinheiro", "bonusMultiplier", 4, "buffMoneyTempo2", buffMoneyTempo2);
+    }
+    if (localStorage.getItem("pocaoOuroPermComprada") === "true") {
+        pocaoOuroPerm.textContent = "Comprado";
+        pocaoOuroPerm.setAttribute("data-foi-comprado", "true");
+        bonusMultiplier *= 2;
+    }
+    if (localStorage.getItem("pocaoDelayPermComprada") === "true") {
+        pocaoDelayPerm.textContent = "Comprado";
+        pocaoDelayPerm.setAttribute("data-foi-comprado", "true");
+        delayMultiplier /= 2;
+    }
+
+    // menu config
+    checkboxAutoClick.checked = localStorage.getItem("autoclickCheckbox.checked") === "true";
+    checkboxPocaoOuro.checked = localStorage.getItem("pocaoOuroCheckbox.checked") === "true";
+    checkboxPocaoDelay.checked = localStorage.getItem("pocaoDelayCheckbox.checked") === "true";
+
+    // menu status
+    delayMultiplier = parseInt(localStorage.getItem("delayMultiplier", delayMultiplier));
+    bonusMultiplier = parseInt(localStorage.getItem("bonusMultiplier", bonusMultiplier));
+    moneyGanhoTotal = parseInt(localStorage.getItem("moneyGanhoTotal", moneyGanhoTotal));
+    moneyGastoTotal = parseInt(localStorage.getItem("moneyGastoTotal", moneyGastoTotal));
+    clickAmount = parseInt(localStorage.getItem("clickAmount", clickAmount));
+    updateStats();
+
+    // auto clicker 
+    /*o código está aqui ao invés de estar na parte do "menu upgrades"
+      porque a checagem "checkboxAutoClick.checked === true" não funcionaria,
+      já que a propriedade checked só teria seu valor atualizado depois.
+      Eu poderia ter apenas colocado lá o código que atualiza o valor da propriedade .checked?
+      Sim, mas eu quis manter a ordem dos menus. (Frescura)*/
+    if (autoClick.comprado === true && checkboxAutoClick.checked) {
+        autoClick.button.textContent = "Comprado";
+        autoClick.button.classList.add("max");
+        checkboxAutoClick.removeAttribute("disabled");
+        IntervalAtualId = setInterval(function () {
+            text2.textContent = `+${Math.round(autoClick.clickPower * (bonusMultiplier / 100), -1)}`;
+            text2.style.opacity = "1";
+            money = Math.round(money + (autoClick.clickPower * (bonusMultiplier / 100)), -1);
+            updateMoneyDisplayer();
+            moneyGanhoTotal = Math.round(moneyGanhoTotal + (autoClick.clickPower * (bonusMultiplier / 100)), -1);
+            updateStats();
+            somMoneyIncrease.play();
+            setTimeout(function () {
+                text2.style.opacity = "0";
+            }, (autoClick.clickDelay * (delayMultiplier / 100)) - 150);
+            for (let i = 0; i < upgradeButtons.length; i++) {
+                if (upgradeButtons[i].textContent === "max") {
+                    verificarMoney("max", upgradeButtons[i]);
+                } else {
+                    verificarMoney(parseInt(upgradeButtons[i].textContent), upgradeButtons[i]);
+                }
+            }
+        }, autoClick.clickDelay * (delayMultiplier / 100));
+        for (let i = 0; i < buttonsBloqueados.length; i++) {
+            buttonsBloqueados[i].removeAttribute("disabled");
+            verificarMoney(parseInt(buttonsBloqueados[i].textContent), buttonsBloqueados[i]);
+            if (upgradeButtons[i].textContent === "max") {
+                verificarMoney("max", upgradeButtons[i]);
+            } else {
+                verificarMoney(parseInt(upgradeButtons[i].textContent), upgradeButtons[i]);
+            }
+        }
+    }
+    else if (autoClick.comprado === true) {
+        autoClick.button.textContent = "Comprado";
+        autoClick.button.classList.add("max");
+        checkboxAutoClick.removeAttribute("disabled");
+    }
+}
 function run() {
-    buttons1.style.height = `${shopButton.getBoundingClientRect().height + upgradesButton.getBoundingClientRect().height + 10}px`;
-    buttons2.style.height = `${configButton.getBoundingClientRect().height + statsButton.getBoundingClientRect().height + 10}px`;
+    buttons1.style.height = `${shopMenuButton.getBoundingClientRect().height + upgradesMenuButton.getBoundingClientRect().height + 10}px`;
+    buttons2.style.height = `${configMenuButton.getBoundingClientRect().height + statsMenuButton.getBoundingClientRect().height + 10}px`;
     text.style.left = `${image.getBoundingClientRect().left}px`;
     text2.style.left = `${image.getBoundingClientRect().left + 50}px`;
     updateMoneyDisplayer();
@@ -511,7 +818,3 @@ function run() {
     updateStats();
 }
 run();
-
-pocaoDelayPerm.addEventListener('click', function () {
-    alert("Isto ainda está em desenvolvimento.");
-})

@@ -6,350 +6,346 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clicker game</title>
   <style>
-      * {
-    color: white;
-    box-sizing: border-box;
-}
+    * {
+      color: white;
+      box-sizing: border-box;
+    }
 
-html {
-    width: 100%;
-    height: 100%;
-}
+    html {
+      width: 100%;
+      height: 100%;
+    }
 
-body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    font-family: Arial, Helvetica, sans-serif;
-}
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      font-family: Arial, Helvetica, sans-serif;
+    }
 
-.container {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
+    .container {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-img {
-    width: 100px;
-    height: 100px;
-}
+    img {
+      width: 100px;
+      height: 100px;
+    }
 
-.money-increase-text {
-    opacity: 0;
-    position: absolute;
-    z-index: 1;
-    transition: opacity 0.5s;
-}
+    .money-increase-text {
+      opacity: 0;
+      position: absolute;
+      z-index: 1;
+      transition: opacity 0.5s;
+    }
 
-#money-value {
-    opacity: 1;
-    z-index: initial;
-    position: absolute;
-    color: black;
-}
+    #money-value {
+      opacity: 1;
+      z-index: initial;
+      position: absolute;
+      color: black;
+    }
 
-.buttons1,
-.buttons2 {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    width: auto;
-    min-width: 142px;
-}
+    .buttons1,
+    .buttons2 {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      width: auto;
+      min-width: 142px;
+    }
 
-.stats-button,
-.config-button,
-.upgrades-button,
-.shop-button {
-    border: 4px black solid;
-    border-radius: 10px;
-    font-size: 20px;
-    text-align: center;
-    padding: 2px;
-}
+    .stats-button,
+    .config-button,
+    .upgrades-button,
+    .shop-button {
+      border: 4px black solid;
+      border-radius: 10px;
+      font-size: 20px;
+      text-align: center;
+      padding: 2px;
+    }
 
-.shop-button {
-    background-color: red;
-}
+    .shop-button {
+      background-color: red;
+    }
 
-.upgrades-button {
-    background-color: green;
-}
+    .upgrades-button {
+      background-color: green;
+    }
 
-.config-button {
-    background-color: gray;
-}
+    .config-button {
+      background-color: gray;
+    }
 
-.stats-button {
-    background-color: rgb(108, 240, 247);
-}
+    .stats-button {
+      background-color: rgb(108, 240, 247);
+    }
 
-.container-caixa-flutuante {
-    position: absolute;
-    z-index: -1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.3);
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    transition: opacity .5s;
-}
+    .exibido {
+      opacity: 1;
+      z-index: 2;
+    }
 
-.exibido {
-    opacity: 1;
-    z-index: 2;
-}
+    .menu {
+      border-radius: 5px;
+      border: none;
+      padding: 4px;
+      min-width: 200px;
+      max-height: 100%;
+      max-width: 100%;
+      background-color: green;
+      flex-direction: column;
+      opacity: 0;
+      transition: all .2s allow-discrete;
+    }
 
-.menu {
-    border-radius: 5px;
-    border: none;
-    padding: 4px;
-    min-width: 200px;
-    max-height: 100%;
-    max-width: 100%;
-    background-color: green;
-    flex-direction: column;
-    opacity: 0;
-    transition: all .2s allow-discrete;
-}
+    .menu>* {
+      width: 100%;
+    }
 
-.menu[open] {
-    display: flex;
-    opacity: 1;
-}
-
-@starting-style {
     .menu[open] {
+      display: flex;
+      opacity: 1;
+    }
+
+    @starting-style {
+      .menu[open] {
         opacity: 0;
         width: fit-content;
         height: fit-content;
+      }
     }
-}
 
-.max-size {
-    width: 100%;
-    height: 100%;
-}
+    .max-size {
+      width: 100%;
+      height: 100%;
+    }
 
-.normal-size {
-    width: fit-content;
-    height: fit-content;
-}
+    .normal-size {
+      width: fit-content;
+      height: fit-content;
+    }
 
-.header {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    width: 100%;
-}
+    .header {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
 
-.fechar {
-    font-size: 20px;
-    line-height: 1;
-    width: 21px;
-    height: 21px;
-    background-color: red;
-    color: black;
-    border: 2px black solid;
-    border-radius: 100px;
-    padding: 0 0 3px 0;
-    margin: 0 0 0 1px;
-}
+    .header img {
+      width: 20px;
+      height: 20px;
+      margin: 0 1px 0 0;
+    }
+    .fechar {
+      font-size: 20px;
+      line-height: 1;
+      width: 21px;
+      height: 21px;
+      background-color: red;
+      color: black;
+      border: 2px black solid;
+      border-radius: 100px;
+      padding: 0 0 3px 0;
+      margin: 0 0 0 1px;
+    }
 
-.redimension {
-    width: 17px;
-    height: 20px;
-    margin: 0 1px 0 0;
-}
+    .titulo,
+    .subtitulo {
+      text-align: center;
+      margin: 0;
+    }
 
-.titulo,
-.subtitulo {
-    text-align: center;
-    margin: 0;
-}
+    .titulo {
+      font-size: 25px;
+    }
 
-.titulo {
-    font-size: 25px;
-}
+    .content {
+      flex-grow: 1;
+    }
 
-.content {
-    flex-grow: 1;
-}
+    .comprar {
+      border: 4px black solid;
+      border-radius: 10px;
+      font-size: 20px;
+      text-align: center;
+      background-color: lightgreen;
+      height: 85%;
+    }
 
-.comprar {
-    border: 4px black solid;
-    border-radius: 10px;
-    font-size: 20px;
-    text-align: center;
-    background-color: lightgreen;
-    height: 85%;
-}
+    .comprar:disabled {
+      background-color: #ccc;
+      color: rgba(244, 67, 45, 0.65);
+    }
 
-.comprar:disabled {
-    background-color: #ccc;
-    color: rgba(244, 67, 45, 0.65);
-}
+    .comprar.max,
+    .comprar.max:disabled {
+      background-color: #ccc;
+      color: gray;
+    }
 
-.comprar.max:disabled {
-    background-color: #ccc;
-    color: gray;
-}
+    .option {
+      display: flex;
+      margin: 5px 0 5px 0;
+    }
 
-.option {
-    display: flex;
-    margin: 5px 0 5px 0;
-}
+    #shop #pocao-ouro {
+      margin: 10px 0 5px 0;
+    }
 
-#shop #pocao-ouro {
-    margin: 10px 0 5px 0;
-}
+    #shop .option:hover {
+      position: relative;
+      bottom: 2px;
+      right: 2px;
+      box-shadow: 5px 5px 5px rgba(20, 20, 20, 0.5);
+    }
+    .deco-image {
+      width: 36px;
+      height: 36px;
+      position: relative;
+      bottom: 2px;
+      margin: 0 4px 0 1px;
+    }
 
-.deco-image {
-    width: 36px;
-    height: 36px;
-    position: relative;
-    bottom: 2px;
-    margin: 0 4px 0 1px;
-}
+    .texto {
+      display: flex;
+      flex-grow: 1;
+      flex-direction: column;
+    }
 
-.texto {
-    display: flex;
-    flex-grow: 1;
-    flex-direction: column;
-}
+    .nome {
+      font-size: 16px;
+    }
 
-.nome {
-    font-size: 16px;
-}
+    .desc {
+      font-size: 12px;
+    }
 
-.desc {
-    font-size: 12px;
-}
+    .credits {
+      font-size: 10px;
+    }
 
-.credits {
-    font-size: 10px;
-}
+    input[type="checkbox"] {
+      width: 24px;
+      height: 24px;
+      border: 2px black solid;
+    }
 
-.checkbox {
-    width: 24px;
-    height: 24px;
-    border: 2px black solid;
-}
+    .pocao {
+      border-radius: 20px;
+      height: 100px;
+      align-items: center;
+    }
 
-.pocao {
-    border-radius: 20px;
-    height: 100px;
-    align-items: center;
-}
+    .pocao .texto {
+      font-weight: bold;
+    }
 
-.pocao .texto {
-    font-weight: bold;
-}
+    .pocao-wrapper {
+      flex-direction: column;
+      align-items: center;
+      display: flex;
+    }
 
-.pocao-wrapper {
-    flex-direction: column;
-    align-items: center;
-    display: flex;
-}
+    .pocao-wrapper img {
+      aspect-ratio: 1 / 1;
+      width: 55px;
+      height: 55px;
+    }
 
-.pocao-wrapper img {
-    aspect-ratio: 1 / 1;
-    width: 55px;
-    height: 55px;
-}
+    #pocao-ouro-permanente,
+    .pocao-ouro {
+      background-image: linear-gradient(135deg, yellow, darkorange);
+    }
 
-#pocao-ouro-permanente,
-.pocao-ouro {
-    background-image: linear-gradient(135deg, yellow, darkorange);
-}
+    .pocao-wrapper button {
+      border-color: rgba(255, 255, 255, 0.5);
+      background-color: chocolate;
+    }
 
-.pocao-wrapper button {
-    border-color: rgba(255, 255, 255, 0.5);
-    background-color: chocolate;
-}
+    .pocao-delay,
+    #pocao-delay-permanente {
+      background-image: linear-gradient(135deg, aqua, blue);
+    }
 
-.pocao-delay,
-#pocao-delay-permanente {
-    background-image: linear-gradient(135deg, aqua, blue);
-}
+    .grade {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 8px;
+    }
 
-.grade {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 8px;
-}
+    .grade div {
+      flex-direction: column;
+      border-radius: 20px;
+      padding: 2px;
+    }
 
-.grade div {
-    flex-direction: column;
-    border-radius: 20px;
-    padding: 2px;
-}
+    .grade div button {
+      width: min-content;
+    }
 
-.grade div button {
-    width: min-content;
-}
+    #buffs {
+      position: absolute;
+      top: 7px;
+      left: 7px;
+      display: none;
+      background-image: linear-gradient(270deg, aqua, pink);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 7px 2.5px;
+    }
 
-#buffs {
-    position: absolute;
-    top: 7px;
-    left: 7px;
-    display: none;
-    background-image: linear-gradient(270deg, aqua, pink);
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 7px 2.5px;
-}
+    ul,
+    li {
+      margin: 0;
+    }
 
-ul,
-li {
-    margin: 0;
-}
+    .stats-content span {
+      margin: 2px 0 2px 0;
+      font-size: 18px;
+    }
 
-.stats-content span {
-    margin: 2px 0 2px 0;
-    font-size: 18px;
-}
-
-@media (orientation: landscape) {
-    #upgrades .content {
+    @media (orientation: landscape) {
+      #upgrades .content {
         display: flex;
         flex-direction: row;
-    }
+      }
 
-    #upgrades .content-section {
+      #upgrades .content-section {
         flex-grow: 1;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         padding: 2px;
-    }
+      }
 
-    .comprar {
+      .comprar {
         padding: 2px 2px 4px 2px;
+      }
     }
-}
 
-@media (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
-    * {
+    @media (min-width: 0px) and (max-width: 600px) and (orientation: portrait) {
+      * {
         font-size: 16px;
-    }
+      }
 
-    .menu.normal-size {
+      .menu.normal-size {
         height: 90%;
         width: 80%;
-    }
+      }
 
-    .titulo {
+      .titulo {
         font-size: 24px;
+      }
     }
-}
   </style>
 </head>
 
@@ -442,8 +438,6 @@ li {
         </div>
       </div>
     </div>
-    <div class="footer">
-    </div>
   </dialog>
 
   <dialog class="menu normal-size" id="upgrades">
@@ -511,12 +505,11 @@ li {
         </div>
       </div>
     </div>
-    <div class="footer">
-    </div>
   </dialog>
 
   <dialog class="menu normal-size" id="config">
     <div class="header">
+      <img id="save-game" src="imagens/disquete.png">
       <img class="redimension" id="config-resize" src="imagens/maximizar.png">
       <button class="fechar" onclick="document.querySelector('#config').close()">&times;</button>
     </div>
@@ -526,17 +519,26 @@ li {
           <span class="nome">Auto click</span>
           <span class="desc">Ativa ou desativa o Auto clicker</span>
         </div>
-        <input class="checkbox" type="checkbox" id="toggle-auto-click" disabled>
+        <input type="checkbox" id="toggle-auto-click" disabled>
       </div>
       <div class="option">
         <div class="texto">
           <span class="nome">Dinheiro dobrado</span>
           <span class="desc">Ativa ou desativa o efeito da poção dourada permanente</span>
         </div>
-        <input class="checkbox" type="checkbox" id="toggle-pocao-ouro" disabled>
+        <input type="checkbox" id="toggle-pocao-ouro" disabled>
+      </div>
+      <div class="option">
+        <div class="texto">
+          <span class="nome">Delay cortado</span>
+          <span class="desc">Ativa ou desativa o efeito da poção de delay permanente</span>
+        </div>
+        <input type="checkbox" id="toggle-pocao-delay" disabled>
       </div>
     </div>
-    <div class="footer"></div>
+    <div>
+      <button onclick="document.querySelector('#logs').showModal()" style="font-size: 11px; background-color: rgba(255, 255, 255, 0.1); border: 2px white solid; color: white;">logs</button>
+    </div>
   </dialog>
 
   <dialog class="menu normal-size" id="stats">
@@ -557,6 +559,13 @@ li {
       <span>Multiplicador do click (bonus): <span id="click-multiplier-bonus-stats"></span></span><br>
       <span>Multiplicador do delay: <span id="delay-multiplier-stats"></span></span>
     </div>
+  </dialog>
+  <dialog class="menu normal-size" id="logs">
+    <div class="header">
+      <img id="logs-resize" class="redimension" src="imagens/maximizar.png">
+      <button class="fechar">&times;</button>
+    </div>
+    <div class="content"></div>
   </dialog>
   <script src="./Clicker.js"></script>
 </body>
