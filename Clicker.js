@@ -508,7 +508,7 @@ function updateAutoClick(id) {
             if (upgradeButtons[i].textContent === "max") {
                 verificarMoney("max", upgradeButtons[i]);
             } else if (!(upgradeButtons[i].classList.contains("disabled"))) {
-                verificarMoney(parseInt(upgradeButtons[i].textContent), -1);
+                verificarMoney(parseInt(upgradeButtons[i].textContent), upgradeButtons[i]);
             }
         }
     }, (autoClick.clickDelay * (delayMultiplier / 100)));
@@ -606,8 +606,7 @@ checkboxPocaoDelay.addEventListener('click', function () {
 })
 function updateStats() {
     document.querySelector("#money-total").textContent = moneyGanhoTotal;
-    document.querySelector("#money-gasto").textContent = moneyGastoTotal;
-    moneyDisplayer.textContent = money;
+    document.querySelector("#money-gasto").textContent = moneyGastoTotal
     document.querySelector("#click-power-stats").textContent = manual.clickPower;
     document.querySelector("#click-mult-stats").textContent = `${manual.multiplier}%`;
     document.querySelector("#click-delay-stats").textContent = `${manual.clickDelay / 1000}s`;
