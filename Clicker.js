@@ -80,7 +80,7 @@ const manual = {
     prices: { click: [10, 25, 100, 200, 350, 600, "max"], multiplier: [100, 200, 400, 700, 1000, 1250, 1600, "max"], clickDelay: [150, 300, 500, 600, 700, 800, 900, 1000, 1250, 1400, 1500, "max"] },
     levels: { click: 1, multiplier: 1, clickDelay: 1 }
 }
-const upgradeButtons = querySelectorAll("[data-botao-upgrade]");
+const upgradeButtons = document.querySelectorAll("[data-botao-upgrade]");
 // variáveis de controle para fazer os upgrades
 let money = 0;
 // variáveis de controle para fazer os upgrades do auto clicker
