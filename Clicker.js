@@ -574,7 +574,7 @@ pocaoDelayPerm.addEventListener('click', function () {
         updateMoneyDisplayer();
         updateStats();
         this.setAttribute("data-foi-comprado", "true");
-        this.textContent = "Comprado";
+        this.textContent = "comprado";
         checkboxPocaoDelay.removeAttribute("disabled");
         checkboxPocaoDelay.checked = true;
         for (let i = 0; i < upgradeButtons.length; i++) {
@@ -728,14 +728,16 @@ function loadSave() {
         createBuff("dinheiro", "bonusMultiplier", 4, "buffMoneyTempo2", buffMoneyTempo2);
     }
     if (localStorage.getItem("pocaoOuroPermComprada") === "true") {
-        pocaoOuroPerm.textContent = "Comprado";
+        pocaoOuroPerm.textContent = "comprado";
         pocaoOuroPerm.setAttribute("data-foi-comprado", "true");
         bonusMultiplier *= 2;
+        checkboxPocaoOuro.removeAttribute("disabled");
     }
     if (localStorage.getItem("pocaoDelayPermComprada") === "true") {
-        pocaoDelayPerm.textContent = "Comprado";
+        pocaoDelayPerm.textContent = "comprado";
         pocaoDelayPerm.setAttribute("data-foi-comprado", "true");
         delayMultiplier /= 2;
+        checkboxPocaoDelay.removeAttribute("disabled");
     }
 
     // menu config
@@ -791,7 +793,7 @@ function loadSave() {
         }
     }
     else if (autoClick.comprado === true) {
-        autoClick.button.textContent = "Comprado";
+        autoClick.button.textContent = "comprado";
         autoClick.button.classList.add("max");
         checkboxAutoClick.removeAttribute("disabled");
     }
