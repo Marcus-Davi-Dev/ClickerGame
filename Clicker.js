@@ -432,7 +432,7 @@ function upgrade(button, prices, level, compra) {
             for (let i = 0; i < upgradeButtons.length; i++) {
                 if (upgradeButtons[i].textContent === "max") {
                     verificarMoney("max", upgradeButtons[i]);
-                } else if (!(upgradeButtons.classList.contains("disabled"))) {
+                } else if (!(upgradeButtons[i].classList.contains("disabled"))) {
                     verificarMoney(parseInt(upgradeButtons[i].textContent), upgradeButtons[i]);
                 }
             }
