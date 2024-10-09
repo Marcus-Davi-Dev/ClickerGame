@@ -236,7 +236,7 @@ function createBuff(buffType, multiplierVariable, multiplier, counter, time) {
             buffsContainer.style.display = "none";
         }
     }, 1000);
-    console.log(`Foi comprado um buff de ${buffTtype} com um multiplicador de ${multiplier} que durará ${time} segundos.`);
+    console.log(`Foi comprado um buff de ${buffType} com um multiplicador de ${multiplier} que durará ${time} segundos.`);
 }
 function updateBuff(type, time) {
     switch (type) {
