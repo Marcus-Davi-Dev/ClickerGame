@@ -608,14 +608,17 @@ function updateStats() {
     document.querySelector("#money-total").textContent = moneyGanhoTotal;
     document.querySelector("#money-gasto").textContent = moneyGastoTotal;
     document.querySelector("#click-power-stats").textContent = manual.clickPower;
-    document.querySelector("#click-mult-stats").textContent = manual.multiplier;
-    document.querySelector("#click-delay-stats").textContent = manual.clickDelay;
+    document.querySelector("#click-mult-stats").textContent = `${manual.multiplier}%`;
+    document.querySelector("#click-delay-stats").textContent = `${manual.clickDelay / 1000}s`;
     document.querySelector("#click-power-level-stats").textContent = manual.levels.click;
     document.querySelector("#click-mult-level-stats").textContent = manual.levels.multiplier;
     document.querySelector("#click-delay-level-stats").textContent = manual.levels.clickDelay;
     document.querySelector("#auto-click-power-stats").textContent = autoClick.clickPower;
     document.querySelector("#auto-click-mult-stats").textContent = `${autoClick.multiplier}%`;
     document.querySelector("#auto-click-delay-stats").textContent = `${autoClick.clickDelay / 1000}s`;
+    document.querySelector("#auto-click-power-level-stats").textContent = autoClick.levels.clickPower;
+    document.querySelector("#auto-click-mult-level-stats").textContent = autoClick.levels.multiplier;
+    document.querySelector("#auto-click-delay-level-stats").textContent = autoClick.levels.clickDelay;
     document.querySelector("#click-multiplier-bonus-stats").textContent = `${bonusMultiplier}%`;
     document.querySelector("#delay-multiplier-stats").textContent = `${delayMultiplier}%`;
 }
