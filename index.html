@@ -313,6 +313,16 @@
       font-size: 18px;
     }
 
+    #stats table {
+      border-collapse: collapse;
+    }
+
+    #stats table th {
+      font-weight: bold;
+      color: black;
+      border: 1px black solid;
+      background-color: rgba(200, 200, 200, 0.5);
+    }
     @media (orientation: landscape) {
       #upgrades .content {
         display: flex;
@@ -550,9 +560,30 @@
       <span>Total de dinheiro acumulado: <span id="money-total">0</span></span><br>
       <span>Total de dinheiro gasto: <span id="money-gasto">0</span></span><br>
       <span>Total de cliques: <span id="clickes">0</span></span><br>
-      <span>Poder do clique (manual): <span id="click-power-stats"></span></span><br>
-      <span>Multiplicador do click (manual): <span id="click-mult-stats"></span></span><br>
-      <span>Delay do click (manual): <span id="click-delay-stats"></span></span><br>
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Poder do click</th>
+            <th>Multiplicador do click</th>
+            <th>Delay do click</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Valor</th>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <th>Nível</th>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
       <span>Poder do clique (auto click): <span id="auto-click-power-stats"></span></span><br>
       <span>Multiplicador do click (auto click): <span id="auto-click-mult-stats"></span></span><br>
       <span>Delay do click (auto click): <span id="auto-click-delay-stats"></span></span><br>

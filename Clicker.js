@@ -606,10 +606,7 @@ checkboxPocaoDelay.addEventListener('click', function () {
 })
 function updateStats() {
     document.querySelector("#money-total").textContent = moneyGanhoTotal;
-    document.querySelector("#money-gasto").textContent = moneyGastoTotal
-    document.querySelector("#click-power-stats").textContent = manual.clickPower;
-    document.querySelector("#click-mult-stats").textContent = `${manual.multiplier}%`;
-    document.querySelector("#click-delay-stats").textContent = `${manual.clickDelay / 1000}s`;
+    document.querySelector("#money-gasto").textContent = moneyGastoTotal;
     document.querySelector("#auto-click-power-stats").textContent = autoClick.clickPower;
     document.querySelector("#auto-click-mult-stats").textContent = `${autoClick.multiplier}%`;
     document.querySelector("#auto-click-delay-stats").textContent = `${autoClick.clickDelay / 1000}s`;
