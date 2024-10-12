@@ -323,6 +323,9 @@
       border: 1px black solid;
       background-color: rgba(200, 200, 200, 0.5);
     }
+    #stats table td {
+      border: 1px black solid;
+    }
     @media (orientation: landscape) {
       #upgrades .content {
         display: flex;
@@ -572,15 +575,15 @@
         <tbody>
           <tr>
             <th>Valor</th>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td id="click-power-stats"></td>
+            <td id="click-mult-stats"></td>
+            <td id="click-delay-stats"></td>
           </tr>
           <tr>
             <th>Nível</th>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td id="click-power-level-stats"></td>
+            <td id="click-mult-level-stats"></td>
+            <td id="click-delay-level-stats"></td>
           </tr>
         </tbody>
       </table>
