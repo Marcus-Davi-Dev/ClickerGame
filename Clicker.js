@@ -456,7 +456,7 @@ function upgradeAutoClick(button, prices, level, compra) {
                     break;
                 case 'multiplier':
                     console.log(`O multiplicador do clique (auto click) aumentou: ${autoClick.multiplier / 100}X -> ${(autoClick.multiplier + 20) / 100}X.`);
-                    autoClick.multiplier += 10;
+                    autoClick.multiplier += 20;
                     autoClick.levels.multiplier++;
                     level = autoClick.levels.multiplier;
                     break;
