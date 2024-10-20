@@ -616,7 +616,7 @@ function updateStats() {
     document.querySelector("#auto-click-power-stats").textContent = autoClick.clickPower;
     document.querySelector("#auto-click-mult-stats").textContent = `${autoClick.multiplier}%`;
     document.querySelector("#auto-click-delay-stats").textContent = `${autoClick.clickDelay / 1000}s`;
-    document.querySelector("#auto-click-power-level-stats").textContent = autoClick.levels.clickPower;
+    document.querySelector("#auto-click-power-level-stats").textContent = autoClick.levels.click;
     document.querySelector("#auto-click-mult-level-stats").textContent = autoClick.levels.multiplier;
     document.querySelector("#auto-click-delay-level-stats").textContent = autoClick.levels.clickDelay;
     document.querySelector("#click-multiplier-bonus-stats").textContent = `${bonusMultiplier}%`;
