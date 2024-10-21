@@ -236,7 +236,7 @@ function createBuff(buffType, multiplierVariable, multiplier, counter, time) {
             buffsContainer.style.display = "none";
         }
     }, 1000);
-    console.log(`Foi comprado um buff de ${buffTtype} com um multiplicador de ${multiplier} que durará ${time} segundos.`);
+    console.log(`Foi comprado um buff de ${buffType} com um multiplicador de ${multiplier} que durará ${time} segundos.`);
 }
 function updateBuff(type, time) {
     switch (type) {
@@ -456,7 +456,7 @@ function upgradeAutoClick(button, prices, level, compra) {
                     break;
                 case 'multiplier':
                     console.log(`O multiplicador do clique (auto click) aumentou: ${autoClick.multiplier / 100}X -> ${(autoClick.multiplier + 20) / 100}X.`);
-                    autoClick.multiplier += 10;
+                    autoClick.multiplier += 20;
                     autoClick.levels.multiplier++;
                     level = autoClick.levels.multiplier;
                     break;
@@ -606,13 +606,19 @@ checkboxPocaoDelay.addEventListener('click', function () {
 })
 function updateStats() {
     document.querySelector("#money-total").textContent = moneyGanhoTotal;
-    document.querySelector("#money-gasto").textContent = moneyGastoTotal
+    document.querySelector("#money-gasto").textContent = moneyGastoTotal;
     document.querySelector("#click-power-stats").textContent = manual.clickPower;
     document.querySelector("#click-mult-stats").textContent = `${manual.multiplier}%`;
     document.querySelector("#click-delay-stats").textContent = `${manual.clickDelay / 1000}s`;
+    document.querySelector("#click-power-level-stats").textContent = manual.levels.click;
+    document.querySelector("#click-mult-level-stats").textContent = manual.levels.multiplier;
+    document.querySelector("#click-delay-level-stats").textContent = manual.levels.clickDelay;
     document.querySelector("#auto-click-power-stats").textContent = autoClick.clickPower;
     document.querySelector("#auto-click-mult-stats").textContent = `${autoClick.multiplier}%`;
     document.querySelector("#auto-click-delay-stats").textContent = `${autoClick.clickDelay / 1000}s`;
+    document.querySelector("#auto-click-power-level-stats").textContent = autoClick.levels.click;
+    document.querySelector("#auto-click-mult-level-stats").textContent = autoClick.levels.multiplier;
+    document.querySelector("#auto-click-delay-level-stats").textContent = autoClick.levels.clickDelay;
     document.querySelector("#click-multiplier-bonus-stats").textContent = `${bonusMultiplier}%`;
     document.querySelector("#delay-multiplier-stats").textContent = `${delayMultiplier}%`;
 }
